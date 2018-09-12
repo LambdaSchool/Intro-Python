@@ -1,51 +1,64 @@
-from room import Room
-
-# Declare all the rooms
-
-room = {
-    'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons"),
-
-    'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east."""),
-
-    'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
-into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
-
-    'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air."""),
-
-    'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
-chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
-}
-
-
-# Link rooms together
-
-room['outside'].n_to = room['foyer']
-room['foyer'].s_to = room['outside']
-room['foyer'].n_to = room['overlook']
-room['foyer'].e_to = room['narrow']
-room['overlook'].s_to = room['foyer']
-room['narrow'].w_to = room['foyer']
-room['narrow'].n_to = room['treasure']
-room['treasure'].s_to = room['narrow']
-
-#
-# Main
-#
+from setup import room, commandsHelp
+from character import Player
 
 # Make a new player object that is currently in the 'outside' room.
+global player
+player = Player(room['outside'])
 
-# Write a loop that:
-#
-# * Prints the current room name
-# * Prints the current description (the textwrap module might be useful here).
-# * Waits for user input and decides what to do.
-#
-# If the user enters a cardinal direction, attempt to move to the room there.
-# Print an error message if the movement isn't allowed.
-#
-# If the user enters "q", quit the game.
+gameRunning = True
+def quitGame():
+        print('Quitting Game')
+        global gameRunning
+        gameRunning = False
+
+####################
+# Command functions
+###################
+
+def parseInput(*args):
+    args = args[0]
+    command1 = args[0].lower()
+    if command1 in "nesw": move(player, command1)
+    elif command1 in {"look", "l"}: look(player, args)
+    elif command1 in {"score", "s"}: player.getScore()
+    elif command1 in {"pickup", "p"}: player.pickupItem(args)
+    elif command1 in {"drop", "d"}: player.dropItem(args)
+    elif command1 in {"q", "quit"}: quitGame()
+    elif command1 in {"h", "help"}: help()
+
+def move(character, direction):
+    newRoom = character.location.peekDirection(direction)
+    if newRoom == None:
+        print("You cannot move in that direction")
+    else:
+        player.location = newRoom
+
+def look(character, *args):
+    commands = args[0]
+    if len(commands) == 1:
+        print("You look around the room and see:")
+        character.location.roomContents()
+    else:
+        nextRoom = character.location.peekDirection(commands[1])
+        if nextRoom is not None:
+            nextRoom.roomInfo()
+
+def checkLights(player):
+    if player.location.isLit or player.hasLight():
+        player.location.roomInfo()
+    else:
+        print("Its pitch black!")
+
+def help():
+    print("--------------------")
+    print("Commands:")
+    for command, description in commandsHelp.items():
+        print(f"   {command}  :  {description}")
+    print("--------------------")
+#Start game
+# name = input("What is your name?")
+while gameRunning:
+    print('')
+    checkLights(player)
+    inputList = input(">>> ").split(" ")
+    parseInput(inputList)
