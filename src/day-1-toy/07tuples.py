@@ -22,11 +22,25 @@ print("Distance is: {:.2f}".format(dist(a, b)))
 
 # Write a function that prints all the values in a tuple
 
-# def print_tuple(...
+def print_tuple(t):
+  for item in t:
+    print(item)
 
 t = (1, 2, 5, 7, 99)
+"""
+t = 1, 2, 5, 7, 99 # works the same
+t = [1, 2, 5, 7, 99] # works the same
+"""
 print_tuple(t)  # Prints 1 2 5 7 99, one per line
 
 # Declare a tuple of 1 element then print it
-u = (1)  # What needs to be added to make this work?
+u = [(1)]  # What needs to be added to make this work?
+u = (1,)
+
 print_tuple(u)
+
+"""
+Differences with the comma
+(1)  # the number 1 (the parentheses are wrapping the expression `1`)
+(1,) # a 1-tuple holding a number 1
+"""
